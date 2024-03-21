@@ -24,17 +24,19 @@ def add_title_slide(prs, title_text):
         if index == 0:    
             paragraph.alignment = PP_ALIGN.CENTER
             title.text_frame.word_wrap = True
-            title_format = paragraph.runs[0].font
+            if paragraph.runs:
+                title_format = paragraph.runs[0].font
             title_format.bold = True
-            title_format.name = 'Century Gothic Bold'
+            title_format.name = 'Century Gothic'
             title_format.size = Pt(72)
             title_format.color.rgb = RGBColor(255, 255, 255)
         else:
             paragraph.alignment = PP_ALIGN.CENTER
             title.text_frame.word_wrap = True
-            title_format = paragraph.runs[0].font
+            if paragraph.runs:
+                title_format = paragraph.runs[0].font
             title_format.bold = False
-            title_format.name = 'Century Gothic Bold'
+            title_format.name = 'Century Gothic'
             title_format.size = Pt(60)
             title_format.color.rgb = RGBColor(255, 255, 255)
             title.text_frame.margin_top = Inches(1)
@@ -93,7 +95,7 @@ def adjust_text_box_size(shape, isCenter, isLarge):
         font_format = paragraph.runs[0].font
         font_format.color.rgb = RGBColor(255,255,255)
         font_format.bold = isCenter
-        font_format.name = 'Century Gothic Bold'
+        font_format.name = 'Century Gothic'
         if isCenter:
             font_format.size = Pt(65)
         else:    
@@ -120,12 +122,17 @@ def get_parts(html, htmlId, get_text, get_sub = False):
     text = ''
     title = ''
     div = html.find(id=f"{htmlId}")
+    title_founded = ''
 
     if not div:
         return {'title': title, 'text': text, 'sub': sub}
-
-    title_founded = div.find('strong').getText()
-
+    if div.find('b'):
+        title_founded = div.find('b').getText()
+    elif div.find('strong'):
+        title_founded = div.find('strong').getText()
+    else:
+        ImportError()
+        
     if get_sub:
         sub_founded = div.find_all('p')[1].getText()
         if sub_founded:
@@ -152,9 +159,22 @@ def get_txt_file(path):
         print(f"Ocorreu um erro ao ler o arquivo: {e}")
 
 def main():
-    url = 'https://liturgia.cancaonova.com/pb/liturgia/5o-domingo-da-quaresma-7/?sDia=17&sMes=03&sAno=2024' # ver site da canção nova
-    oracao = get_txt_file('oracoes_eucaristicas/eucaristica_3_todas.txt') # ver pasta de arquivos "oracoes_eucaristicas"
+    ###### ALTERE AQUI
+    ###### ALTERE AQUI
+    ###### ALTERE AQUI
+    ###### ALTERE AQUI
+    # Após alteração precione "CTRL + S"
+    # Após alteração precione "CTRL + S"
+    url = 'https://liturgia.cancaonova.com/pb/liturgia/5a-semana-da-quaresma-quinta-feira-6/?sDia=21&sMes=03&sAno=2024' # ver site da canção nova
+    oracao = get_txt_file('oracoes_eucaristicas/eucaristica_2_anunciamos.txt') # ver pasta de arquivos "oracoes_eucaristicas"
     comGloria = False 
+    comCreio = True
+    # Após alteração precione "CTRL + S"
+    # Após alteração precione "CTRL + S"
+    ###### ALTERE AQUI
+    ###### ALTERE AQUI
+    ###### ALTERE AQUI
+    ###### ALTERE AQUI
     
     response = requests.get(url)
     html_content = response.content
@@ -164,8 +184,7 @@ def main():
     l1 = get_parts(html, 'liturgia-1', False, True)
     s = get_parts(html, 'liturgia-2', False, True)
     l2 = get_parts(html, 'liturgia-3', False, True)
-    e = get_parts(html, 'liturgia-4', False)
-
+    e = get_parts(html, 'liturgia-4', False, False)
 
     pai_nosso = get_txt_file('outras_oracoes/pai_nosso.txt')
     creio = get_txt_file('outras_oracoes/creio.txt')
@@ -173,6 +192,7 @@ def main():
     presentation = create_presentation()
     presentation.slide_width = Inches(16)
     presentation.slide_height = Inches(9)  
+
     add_title_slide(presentation, title)
     add_title_slide(presentation, "CANTO DE ENTRADA")    
     add_title_slide(presentation, " ")    
@@ -199,8 +219,9 @@ def main():
     add_content_slide(presentation, e['text'])
     add_title_slide(presentation, " ")    
     add_title_slide(presentation, "HOMILIA")  
-    add_content_slide(presentation, creio)
-    add_title_slide(presentation, " ")    
+    if comCreio:
+        add_content_slide(presentation, creio)
+        add_title_slide(presentation, " ")    
     add_title_slide(presentation, "PRECES DA COMUNIDADE")    
     add_title_slide(presentation, " ")    
     add_title_slide(presentation, "OFERTÓRIO")    
@@ -217,7 +238,7 @@ def main():
     add_title_slide(presentation, " ")  
 
     
-    save_presentation(presentation, "apresentacao_com_scraping.pptx")
+    save_presentation(presentation, "Missa textos.pptx")
 
 if __name__ == "__main__":
     main()
